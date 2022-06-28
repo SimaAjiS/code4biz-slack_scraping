@@ -1,1 +1,18 @@
 # code4biz-slack_scraping
+- 2022/06/28
+  - code4biz Slackの内容をスクレイピングし保存する
+  - 10000件超過対策
+  - 方法（案）
+    - Slack APIなどでスクレイピング
+    - スクレイピング項目
+      - タイムスタンプ
+      - チャンネル
+      - 投稿者
+      - 内容
+      - Slackリンク
+    - 保存先
+      - Googleスプレッド
+      - Excel
+      - Notion
+  - (https://kino-code.com/python-slack-api/)
+  - 
