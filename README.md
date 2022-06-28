@@ -6,7 +6,7 @@
     - Slack APIなどでスクレイピング
     - スクレイピング項目
       - タイムスタンプ
-      - チャンネル
+      - チャンネル(パブリックのみ「)
       - 投稿者
       - 内容
       - Slackリンク
@@ -14,5 +14,8 @@
       - Googleスプレッド
       - Excel
       - Notion
-  - (https://kino-code.com/python-slack-api/)
-  - 
+  - KinoCode「Slackチャンネル名の全部を一瞬で取得する方法」
+    - (https://kino-code.com/python-slack-api/)
+  - Slack API説明
+    - (https://api.slack.com/web)
+    - (https://api.slack.com/methods?filter=conversations)
