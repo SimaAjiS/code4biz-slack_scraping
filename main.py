@@ -277,7 +277,7 @@ def main(start, end):
         sleep(2)
 
         # メッセージ重複有り（取得後、pandasにて重複削除）
-        for i in range(2):  # 1回スクロール
+        for i in range(3):  # 2回までスクロール
             message_groups = driver.find_elements(by=By.CLASS_NAME, value='c-message_group')
             print(f'メッセージ数:{len(message_groups)}')
 
@@ -357,7 +357,7 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-22'
+    start = '2022-03-23'
     end = '2022-03-24'
 
     main(start=start, end=end)
