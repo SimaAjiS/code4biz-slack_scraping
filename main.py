@@ -149,7 +149,7 @@ def excel_tabling(search_day):
     ws_summary = wb.worksheets[-1]
 
     # テーブルを生成する
-    table = Table(displayName='T集計', ref='A1:H100')
+    table = Table(displayName='T集計', ref='A1:200')
 
     # テーブルのスタイルを決める(紫、テーブルスタイル(中間))
     table_style = TableStyleInfo(name='TableStyleMedium5', showRowStripes=True)
@@ -237,7 +237,7 @@ def main(start, end):
         start_time = dt.now()
 
         # メッセージ重複有り（取得後、pandasにて重複削除）
-        roop_total = math.floor(search_results_count / 21)
+        roop_total = math.floor(search_results_count / 20)
         for i in range(roop_total + 1):  # roop_total 回までスクロール
             message_groups = driver.find_elements(by=By.CLASS_NAME, value='c-message_group')
             print(f'メッセージ数:{len(message_groups)}')
@@ -310,8 +310,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-22'
-    end = '2022-03-22'
+    start = '2022-03-21'
+    end = '2022-03-21'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
