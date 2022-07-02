@@ -351,8 +351,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-15'
-    end = '2022-03-16'
+    start = '2022-03-17'
+    end = '2022-03-20'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')

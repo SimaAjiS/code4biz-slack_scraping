@@ -19,6 +19,7 @@
   - Slack API説明
     - (https://api.slack.com/web)
     - (https://api.slack.com/methods?filter=conversations)
+    - フリープランの制限のためAPIは使えず...
 - 2022/06/30
   - 検索から一人分のデータ取得
   - ただし動的に変わるためどうすれば固定できる？？？
