@@ -277,7 +277,7 @@ def main(start, end):
         sleep(2)
 
         # メッセージ重複有り（取得後、pandasにて重複削除）
-        for i in range(2):  # 2回までスクロール
+        for i in range(2):  # 1回スクロール
             message_groups = driver.find_elements(by=By.CLASS_NAME, value='c-message_group')
             print(f'メッセージ数:{len(message_groups)}')
 
@@ -297,15 +297,16 @@ def main(start, end):
                     except:
                         pass
                 except:
-                    text_section = message.find_element(by=By.CLASS_NAME, value='c-search_message__body').text
-                    try:
-                        # リスト表記をしているメッセージへの対応
-                        lists = message.find_elements(by=By.TAG_NAME, value='li')
-                        if lists is not None:
-                            for list in lists:
-                                text_section += list.text + '\n'
-                    except:
-                        pass
+                    # text_section = message.find_element(by=By.CLASS_NAME, value='c-search_message__body').text
+                    # try:
+                    #     # リスト表記をしているメッセージへの対応
+                    #     lists = message.find_elements(by=By.TAG_NAME, value='li')
+                    #     if lists is not None:
+                    #         for list in lists:
+                    #             text_section += list.text + '\n'
+                    # except:
+                    #     pass
+                    text_section = ''
                 urls = message.find_elements(by=By.TAG_NAME, value='a')
                 url = urls[1].get_attribute('href')
                 ts = url.split('=')[-1]
@@ -321,7 +322,7 @@ def main(start, end):
                     'リンク': url
                 }
                 data.append(datum)
-                print(f'{j + 1}/{len(message_groups)}: ＠{sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
+                print(f'{i}スクロール目{j + 1}/{len(message_groups)}件: ＠{sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(1)
 
