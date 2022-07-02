@@ -149,7 +149,7 @@ def excel_tabling(search_day):
     ws_summary = wb.worksheets[-1]
 
     # テーブルを生成する
-    table = Table(displayName='T集計', ref='A1:200')
+    table = Table(displayName='T集計', ref='A1:I200')
 
     # テーブルのスタイルを決める(紫、テーブルスタイル(中間))
     table_style = TableStyleInfo(name='TableStyleMedium5', showRowStripes=True)
