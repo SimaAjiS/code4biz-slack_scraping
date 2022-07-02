@@ -254,7 +254,7 @@ def main(start, end):
         sleep(2)
 
         # 検索件数の取得
-        search_results_count = driver.find_element(by=By.CLASS_NAME, value='c-tabs__tab_count').text
+        search_results_count = int(driver.find_element(by=By.CLASS_NAME, value='c-tabs__tab_count').text)
         print(f'検索結果数：{search_results_count}')
 
         # 並べ替え：古い → 新
@@ -322,15 +322,21 @@ def main(start, end):
                     'リンク': url
                 }
                 data.append(datum)
-                print(f'{i}スクロール目{j + 1}/{len(message_groups)}件: ＠{sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
+                print(
+                    f'{search_day} {i}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): {sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(1)
 
-            # 先頭の要素までスクロール
-            first_message = message_groups[0]
-            actions = ActionChains(driver);
-            actions.move_to_element(first_message);
-            actions.perform();
+            # 検索結果より1度の取得件数が少なければ、取得メッセージ先頭の要素までスクロール
+            if search_results_count > len(message_groups):
+                first_message = message_groups[0]
+                actions = ActionChains(driver);
+                actions.move_to_element(first_message);
+                actions.perform();
+                # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
+                sleep(3)
+            else:
+                break
 
             # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
             sleep(3)
@@ -351,8 +357,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-17'
-    end = '2022-03-20'
+    start = '2022-03-22'
+    end = '2022-03-24'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
