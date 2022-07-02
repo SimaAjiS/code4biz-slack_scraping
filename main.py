@@ -1,4 +1,5 @@
 import json
+import math
 from datetime import datetime as dt
 from datetime import timedelta
 from time import sleep
@@ -88,52 +89,6 @@ def jump_to_search_box():
     sleep(1)
 
 
-def to_search_yesterday():
-    jump_to_search_box()
-
-    # 日付検索を昨日にする
-    pg.press('tab', presses=4, interval=0.2)
-    pg.press('enter', presses=1, interval=0.1)
-    pg.press('down', presses=3, interval=0.2)
-    pg.press('enter', presses=1, interval=0.1)
-
-    # 検索条件決定
-    pg.press('tab', presses=5, interval=0.2)
-    pg.press('enter', presses=1, interval=0.1)
-
-
-def to_search_period(start, end):
-    jump_to_search_box()
-
-    # 範囲指定
-    pg.press('tab', presses=4, interval=0.2)
-    pg.press('enter', presses=1, interval=0.1)
-    pg.press('up', presses=1, interval=0.2)
-    pg.press('enter', presses=1, interval=0.1)
-    # 開始日時を”YYYY-MM-DD”形式で入力
-    write_jp(start)
-
-    sleep(0.5)
-    pg.press('tab', presses=1, interval=0.1)
-
-    # 終了日時を”YYYY-MM-DD”形式で入力
-    write_jp(end)
-
-    # 検索範囲の保存ボタンを押す
-    sleep(0.5)
-    pg.hotkey('shift', 'tab')
-    pg.hotkey('shift', 'tab')
-    pg.hotkey('shift', 'tab')
-    pg.press('enter', presses=1, interval=0.1)
-
-    # 検索開始（上記保存することでコメント欄にカーソルアクティブしている）
-    sleep(0.2)
-    pg.press('tab', presses=15, interval=0.2)
-    pg.press('enter', presses=1, interval=0.1)
-
-    print(start, end)
-
-
 def to_search_date(search_day):
     jump_to_search_box()
 
@@ -207,13 +162,14 @@ def excel_tabling(search_day):
 
     # テーブル化した列幅の調整
     ws_summary.column_dimensions['A'].width = 16
-    ws_summary.column_dimensions['B'].width = 20
-    ws_summary.column_dimensions['C'].width = 15
+    ws_summary.column_dimensions['B'].width = 25
+    ws_summary.column_dimensions['C'].width = 20
     ws_summary.column_dimensions['D'].width = 15
-    ws_summary.column_dimensions['E'].width = 25
-    ws_summary.column_dimensions['F'].width = 20
-    ws_summary.column_dimensions['G'].width = 50
+    ws_summary.column_dimensions['E'].width = 15
+    ws_summary.column_dimensions['F'].width = 25
+    ws_summary.column_dimensions['G'].width = 20
     ws_summary.column_dimensions['H'].width = 50
+    ws_summary.column_dimensions['I'].width = 50
 
     # テーブル化したフォントの設定
     font_name = 'Meiryo'
@@ -231,6 +187,7 @@ def excel_tabling(search_day):
         ws_summary.cell(row=i, column=6).font = Font(name=font_name, sz=11)
         ws_summary.cell(row=i, column=7).font = Font(name=font_name, sz=11)
         ws_summary.cell(row=i, column=8).font = Font(name=font_name, sz=11)
+        ws_summary.cell(row=i, column=9).font = Font(name=font_name, sz=11)
 
     wb.save(aggre_file_name)
 
@@ -276,8 +233,12 @@ def main(start, end):
         pg.press('pagedown', presses=10, interval=0.2)
         sleep(2)
 
+        # 取得日時
+        start_time = dt.now()
+
         # メッセージ重複有り（取得後、pandasにて重複削除）
-        for i in range(3):  # 2回までスクロール
+        roop_total = math.floor(search_results_count / 21)
+        for i in range(roop_total + 1):  # roop_total 回までスクロール
             message_groups = driver.find_elements(by=By.CLASS_NAME, value='c-message_group')
             print(f'メッセージ数:{len(message_groups)}')
 
@@ -297,22 +258,14 @@ def main(start, end):
                     except:
                         pass
                 except:
-                    # text_section = message.find_element(by=By.CLASS_NAME, value='c-search_message__body').text
-                    # try:
-                    #     # リスト表記をしているメッセージへの対応
-                    #     lists = message.find_elements(by=By.TAG_NAME, value='li')
-                    #     if lists is not None:
-                    #         for list in lists:
-                    #             text_section += list.text + '\n'
-                    # except:
-                    #     pass
-                    text_section = ''
+                    text_section = ''  # エクセルで検索しやすいように空白
                 urls = message.find_elements(by=By.TAG_NAME, value='a')
                 url = urls[1].get_attribute('href')
                 ts = url.split('=')[-1]
 
                 datum = {
                     '検索結果数': search_results_count,
+                    '抽出日時': start_time,
                     'ts': ts,
                     '投稿日': date,
                     '投稿時間': timestamp,
@@ -323,7 +276,7 @@ def main(start, end):
                 }
                 data.append(datum)
                 print(
-                    f'{search_day} {i}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): {sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
+                    f'{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): {sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(1)
 
@@ -357,8 +310,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-23'
-    end = '2022-03-24'
+    start = '2022-03-22'
+    end = '2022-03-22'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
