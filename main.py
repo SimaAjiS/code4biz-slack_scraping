@@ -369,7 +369,7 @@ def main(start, end):
 if __name__ == '__main__':
     # 期間指定
     start = '2022-04-01'
-    end = '2022-07-01'
+    end = '2022-04-01'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
