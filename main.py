@@ -305,20 +305,24 @@ def main(start, end):
             # 最後（検索結果の下側）から取得するためリスト反転
             message_groups.reverse()
 
-            for j, message in enumerate(message_groups):
-                try:
-                    datum, sender_name, text_section, timestamp = get_contents_1message(
-                        message, search_results_count, start_time)
-                    data.append(datum)
-                    print(
-                        f'\n{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件):{sender_name} {timestamp}')
-                    print(f'{text_section[:50]}...\nメッセージ取得完了')
-                except:
-                    # エラーによる取得NGの時スキップ処理（特に最後のメッセージ)
-                    print(
-                        f'{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): 取得失敗！')
-                # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
-                sleep(1)
+            try:
+                for j, message in enumerate(message_groups):
+                    try:
+                        datum, sender_name, text_section, timestamp = get_contents_1message(
+                            message, search_results_count, start_time)
+                        data.append(datum)
+                        print(
+                            f'\n{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件):{sender_name} {timestamp}')
+                        print(f'{text_section[:50]}...\nメッセージ取得完了')
+                    except Exception as e:
+                        # エラーによる取得NGの時スキップ処理
+                        print(
+                            f'{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): 取得失敗！')
+                        print(e)
+                        # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
+                        sleep(0.5)
+            except Exception as e:
+                print(e)
 
             # リスト反転もどす
             message_groups.reverse()
@@ -349,14 +353,14 @@ def main(start, end):
         if df['検索結果数'].count() == search_results_count:
             aggre_file_name = f'{src_dir}/{search_day}_code4biz_slack_messages.xlsx'
         else:
-            aggre_file_name = f'{src_dir}/【取得数不一致】{search_day}_code4biz_slack_messages.xlsx'
+            aggre_file_name = f'{src_dir}/{search_day}_取得数不一致_code4biz_slack_messages.xlsx'
         df.to_excel(aggre_file_name, index=False)
 
         try:
             excel_tabling(aggre_file_name)
         except:
             print('テーブル化失敗')
-        print(f'{search_day}の取得完了')
+        print(f'{search_day}の取得完了:{aggre_file_name}')
 
         # 1日ごとにChrome終了
         driver.quit()
@@ -365,7 +369,7 @@ def main(start, end):
 if __name__ == '__main__':
     # 期間指定
     start = '2022-04-01'
-    end = '2022-04-01'
+    end = '2022-07-01'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
