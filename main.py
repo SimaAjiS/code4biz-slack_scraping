@@ -1,5 +1,6 @@
 import json
 import math
+import os
 from datetime import datetime as dt
 from datetime import timedelta
 from time import sleep
@@ -30,6 +31,15 @@ def create_search_day_list(start, end):
         search_days.append(strdt + timedelta(days=i))
 
     return search_days
+
+
+def create_src_dir(search_day):  # '2022-03-21'
+    year = int(search_day.split('-')[0])
+    month = int(search_day.split('-')[1])
+
+    src_dir = f'src/{year}-{month:02}'
+    os.makedirs(src_dir, exist_ok=True)
+    return src_dir
 
 
 def selenium_run():
@@ -132,7 +142,7 @@ def display_smaller():
     pg.hotkey('ctrl', '-')
     pg.hotkey('ctrl', '-')
     pg.hotkey('ctrl', '-')
-    sleep(1)
+    sleep(2)
 
 
 # course_link列をハイパーリンク化
@@ -140,9 +150,9 @@ def make_clickable(course_link):
     return f'<a target="_blank" href="{course_link}">{course_link}</a>'
 
 
-def excel_tabling(search_day):
+def excel_tabling(src_dir, search_day):
     # ワークブックを開く
-    aggre_file_name = f'src/{search_day}_code4biz_slack_messages.xlsx'
+    aggre_file_name = f'{src_dir}/{search_day}_code4biz_slack_messages.xlsx'
     wb = openpyxl.load_workbook(aggre_file_name, data_only=True)
 
     # 最後のシートを選択
@@ -229,15 +239,15 @@ def main(start, end):
         display_smaller()
 
         # 一番下まで移動
-        pg.press('tab', presses=2, interval=0.2)
-        pg.press('pagedown', presses=10, interval=0.2)
+        pg.press('tab', presses=3, interval=0.5)
+        pg.press('pagedown', presses=10, interval=0.5)
         sleep(2)
 
         # 取得日時
         start_time = dt.now()
 
         # メッセージ重複有り（取得後、pandasにて重複削除）
-        roop_total = math.floor(search_results_count / 20)
+        roop_total = math.floor(search_results_count / 21)
         for i in range(roop_total + 1):  # roop_total 回までスクロール
             message_groups = driver.find_elements(by=By.CLASS_NAME, value='c-message_group')
             print(f'メッセージ数:{len(message_groups)}')
@@ -299,9 +309,17 @@ def main(start, end):
         df = df.drop_duplicates()
         df['リンク'] = df['リンク'].apply(make_clickable)
 
-        aggre_file_name = f'src/{search_day}_code4biz_slack_messages.xlsx'
+        # ソースディレクトリの作成
+        src_dir = create_src_dir(search_day)
+
+        # 検索件数と取得件数の不一致時に判別用ファイル名
+        if df['検索結果数'].count() == search_results_count:
+            aggre_file_name = f'{src_dir}/{search_day}_code4biz_slack_messages.xlsx'
+        else:
+            aggre_file_name = f'{src_dir}/【取得数不足】{search_day}_code4biz_slack_messages.xlsx'
         df.to_excel(aggre_file_name, index=False)
-        excel_tabling(search_day)
+
+        excel_tabling(src_dir, search_day)
         print(f'{search_day}の取得完了')
 
         # 1日ごとにChrome終了
@@ -310,8 +328,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-21'
-    end = '2022-03-21'
+    start = '2022-03-22'
+    end = '2022-03-23'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
