@@ -158,14 +158,51 @@ def get_text_section(message, class_name):
     return text_section
 
 
+def get_contents_1message(message, search_results_count, start_time):
+    date = message.find_element(by=By.CLASS_NAME, value='c-message_group__header_date').text
+    timestamp = message.find_element(by=By.CLASS_NAME, value='c-timestamp__label').text
+    channel_name = message.find_element(by=By.CLASS_NAME, value='p-deprecated_channel_name__text').text
+    sender_name = message.find_element(by=By.CLASS_NAME, value='c-message__sender').text
+    # 長文の場合の”...もっと表示する”となっている場合の対応
+    try:
+        if len(message.find_elements(by=By.CLASS_NAME, value='c-search__expand_ellipsis')) > 0:
+            print('”...もっと表示する”あり')
+            message.find_element(by=By.CLASS_NAME, value='c-search__expand_ellipsis').click()
+            sleep(1)
+    except:
+        pass
+    try:
+        text_section = get_text_section(message, class_name='p-rich_text_section')
+    except:
+        try:
+            text_section = get_text_section(message, class_name='c-search_message__body')
+        except:
+            print('除外処理')
+            text_section = ''  # エクセルで検索しやすいように空白
+    urls = message.find_elements(by=By.TAG_NAME, value='a')
+    url = urls[1].get_attribute('href')
+    thread_ts = url.split('=')[-1]
+    datum = {
+        '検索結果数': search_results_count,
+        '抽出日時': start_time,
+        'thread_ts': thread_ts,
+        '投稿日': date,
+        '投稿時間': timestamp,
+        '投稿チャンネル': channel_name,
+        '投稿者': sender_name,
+        '投稿メッセージ': text_section,
+        'リンク': url
+    }
+    return datum, sender_name, text_section, timestamp
+
+
 # course_link列をハイパーリンク化
 def make_clickable(course_link):
     return f'<a target="_blank" href="{course_link}">{course_link}</a>'
 
 
-def excel_tabling(src_dir, search_day):
+def excel_tabling(aggre_file_name):
     # ワークブックを開く
-    aggre_file_name = f'{src_dir}/{search_day}_code4biz_slack_messages.xlsx'
     wb = openpyxl.load_workbook(aggre_file_name, data_only=True)
 
     # 最後のシートを選択
@@ -269,47 +306,17 @@ def main(start, end):
             message_groups.reverse()
 
             for j, message in enumerate(message_groups):
-                date = message.find_element(by=By.CLASS_NAME, value='c-message_group__header_date').text
-                timestamp = message.find_element(by=By.CLASS_NAME, value='c-timestamp__label').text
-                channel_name = message.find_element(by=By.CLASS_NAME, value='p-deprecated_channel_name__text').text
-                sender_name = message.find_element(by=By.CLASS_NAME, value='c-message__sender').text
-
-                # 長文の場合の”...もっと表示する”となっている場合の対応
                 try:
-                    if len(message.find_elements(by=By.CLASS_NAME, value='c-search__expand_ellipsis')) > 0:
-                        print('”...もっと表示する”あり')
-                        message.find_element(by=By.CLASS_NAME, value='c-search__expand_ellipsis').click()
-                        sleep(1)
+                    datum, sender_name, text_section, timestamp = get_contents_1message(
+                        message, search_results_count, start_time)
+                    data.append(datum)
+                    print(
+                        f'\n{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件):{sender_name} {timestamp}')
+                    print(f'{text_section[:50]}...\nメッセージ取得完了')
                 except:
-                    pass
-
-                try:
-                    text_section = get_text_section(message, class_name='p-rich_text_section')
-                except:
-                    try:
-                        text_section = get_text_section(message, class_name='c-search_message__body')
-                    except:
-                        print('除外処理')
-                        text_section = ''  # エクセルで検索しやすいように空白
-
-                urls = message.find_elements(by=By.TAG_NAME, value='a')
-                url = urls[1].get_attribute('href')
-                thread_ts = url.split('=')[-1]
-
-                datum = {
-                    '検索結果数': search_results_count,
-                    '抽出日時': start_time,
-                    'thread_ts': thread_ts,
-                    '投稿日': date,
-                    '投稿時間': timestamp,
-                    '投稿チャンネル': channel_name,
-                    '投稿者': sender_name,
-                    '投稿メッセージ': text_section,
-                    'リンク': url
-                }
-                data.append(datum)
-                print(
-                    f'{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): {sender_name} {timestamp}「{text_section[:10]} ・・・」メッセージ取得完了')
+                    # エラーによる取得NGの時スキップ処理（特に最後のメッセージ)
+                    print(
+                        f'{search_day} {i}/{roop_total}スクロール目{j + 1}/{len(message_groups)}件 (全{search_results_count}件): 取得失敗！')
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(1)
 
@@ -325,7 +332,7 @@ def main(start, end):
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(3)
             else:
-                break
+                pass
 
             # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
             sleep(3)
@@ -342,10 +349,13 @@ def main(start, end):
         if df['検索結果数'].count() == search_results_count:
             aggre_file_name = f'{src_dir}/{search_day}_code4biz_slack_messages.xlsx'
         else:
-            aggre_file_name = f'{src_dir}/【取得数不足】{search_day}_code4biz_slack_messages.xlsx'
+            aggre_file_name = f'{src_dir}/【取得数不一致】{search_day}_code4biz_slack_messages.xlsx'
         df.to_excel(aggre_file_name, index=False)
 
-        excel_tabling(src_dir, search_day)
+        try:
+            excel_tabling(aggre_file_name)
+        except:
+            print('テーブル化失敗')
         print(f'{search_day}の取得完了')
 
         # 1日ごとにChrome終了
@@ -354,8 +364,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-15'
-    end = '2022-03-31'
+    start = '2022-04-01'
+    end = '2022-04-01'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
