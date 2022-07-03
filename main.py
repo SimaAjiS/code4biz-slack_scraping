@@ -145,6 +145,19 @@ def display_smaller():
     sleep(2)
 
 
+def get_text_section(message, class_name):
+    text_section = message.find_element(by=By.CLASS_NAME, value=class_name).text
+    try:
+        # リスト表記をしているメッセージへの対応
+        lists = message.find_elements(by=By.TAG_NAME, value='li')
+        if lists is not None:
+            for list in lists:
+                text_section += list.text + '\n'
+    except:
+        pass
+    return text_section
+
+
 # course_link列をハイパーリンク化
 def make_clickable(course_link):
     return f'<a target="_blank" href="{course_link}">{course_link}</a>'
@@ -224,10 +237,10 @@ def main(start, end):
         search_results_count = int(driver.find_element(by=By.CLASS_NAME, value='c-tabs__tab_count').text)
         print(f'検索結果数：{search_results_count}')
 
-        # 並べ替え：古い → 新
+        # 並べ替え：新 → 古
         pg.press('tab', presses=16, interval=0.2)
         pg.press('enter', presses=1, interval=0.1)
-        pg.press('down', presses=3, interval=0.2)
+        pg.press('down', presses=2, interval=0.2)
         pg.press('enter', presses=1, interval=0.1)
         # 全件表示
         pg.press('tab', presses=1, interval=0.2)
@@ -252,31 +265,41 @@ def main(start, end):
             message_groups = driver.find_elements(by=By.CLASS_NAME, value='c-message_group')
             print(f'メッセージ数:{len(message_groups)}')
 
+            # 最後（検索結果の下側）から取得するためリスト反転
+            message_groups.reverse()
+
             for j, message in enumerate(message_groups):
                 date = message.find_element(by=By.CLASS_NAME, value='c-message_group__header_date').text
                 timestamp = message.find_element(by=By.CLASS_NAME, value='c-timestamp__label').text
                 channel_name = message.find_element(by=By.CLASS_NAME, value='p-deprecated_channel_name__text').text
                 sender_name = message.find_element(by=By.CLASS_NAME, value='c-message__sender').text
+
+                # 長文の場合の”...もっと表示する”となっている場合の対応
                 try:
-                    text_section = message.find_element(by=By.CLASS_NAME, value='p-rich_text_section').text
-                    try:
-                        # リスト表記をしているメッセージへの対応
-                        lists = message.find_elements(by=By.TAG_NAME, value='li')
-                        if lists is not None:
-                            for list in lists:
-                                text_section += list.text + '\n'
-                    except:
-                        pass
+                    if len(message.find_elements(by=By.CLASS_NAME, value='c-search__expand_ellipsis')) > 0:
+                        print('”...もっと表示する”あり')
+                        message.find_element(by=By.CLASS_NAME, value='c-search__expand_ellipsis').click()
+                        sleep(1)
                 except:
-                    text_section = ''  # エクセルで検索しやすいように空白
+                    pass
+
+                try:
+                    text_section = get_text_section(message, class_name='p-rich_text_section')
+                except:
+                    try:
+                        text_section = get_text_section(message, class_name='c-search_message__body')
+                    except:
+                        print('除外処理')
+                        text_section = ''  # エクセルで検索しやすいように空白
+
                 urls = message.find_elements(by=By.TAG_NAME, value='a')
                 url = urls[1].get_attribute('href')
-                ts = url.split('=')[-1]
+                thread_ts = url.split('=')[-1]
 
                 datum = {
                     '検索結果数': search_results_count,
                     '抽出日時': start_time,
-                    'ts': ts,
+                    'thread_ts': thread_ts,
                     '投稿日': date,
                     '投稿時間': timestamp,
                     '投稿チャンネル': channel_name,
@@ -290,12 +313,15 @@ def main(start, end):
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(1)
 
+            # リスト反転もどす
+            message_groups.reverse()
+
             # 検索結果より1度の取得件数が少なければ、取得メッセージ先頭の要素までスクロール
             if search_results_count > len(message_groups):
                 first_message = message_groups[0]
-                actions = ActionChains(driver);
-                actions.move_to_element(first_message);
-                actions.perform();
+                actions = ActionChains(driver)
+                actions.move_to_element(first_message)
+                actions.perform()
                 # 待機時間（サイトに負荷を与えないと同時にコンテンツの読み込み待ち）
                 sleep(3)
             else:
@@ -328,8 +354,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-22'
-    end = '2022-03-23'
+    start = '2022-03-15'
+    end = '2022-03-31'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
