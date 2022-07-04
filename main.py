@@ -383,7 +383,7 @@ def main(start, end):
 
             if page + 1 < pages:
                 # 一番下まで移動
-                pg.press('end', presses=1, interval=0.5)
+                pg.press('end', presses=2, interval=0.5) # 大抵は1回で下へ遷移するが、たまに動かないため2回
                 sleep(2)
                 try:
                     next_button = driver.find_element(by=By.XPATH, value='//*[@aria-label="次のページ"]')
@@ -406,9 +406,9 @@ def main(start, end):
 
         # 検索件数と取得件数の不一致時に判別用ファイル名
         if df['検索結果数'].count() == search_results_count:
-            aggre_file_name = f'{src_dir}/{search_day}_code4biz_slack_messages.xlsx'
+            aggre_file_name = f'{src_dir}/{search_day}_{search_results_count:03}_c4b_slack.xlsx'
         else:
-            aggre_file_name = f'{src_dir}/{search_day}_取得数不一致_code4biz_slack_messages.xlsx'
+            aggre_file_name = f'{src_dir}/{search_day}_{search_results_count:03}_取得数不一致_c4b_slack.xlsx'
         df.to_excel(aggre_file_name, index=False)
 
         try:
@@ -423,8 +423,8 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-03-13'
-    end = '2022-03-13'
+    start = '2022-04-23'
+    end = '2022-07-02'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
