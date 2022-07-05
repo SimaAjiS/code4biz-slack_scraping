@@ -238,7 +238,8 @@ def excel_tabling(aggre_file_name):
     ws_summary = wb.worksheets[-1]
 
     # テーブルを生成する
-    table = Table(displayName='T集計', ref='A1:N200')
+    max_row = ws_summary.max_row
+    table = Table(displayName='T集計', ref=f'A1:N{max_row}')
 
     # テーブルのスタイルを決める(紫、テーブルスタイル(中間))
     table_style = TableStyleInfo(name='TableStyleMedium5', showRowStripes=True)
@@ -423,8 +424,12 @@ def main(start, end):
 
 if __name__ == '__main__':
     # 期間指定
-    start = '2022-04-23'
-    end = '2022-07-02'
+    start = '2022-03-29'
+    end = '2022-03-31'
+    # start = '2022-06-29'
+    # end = '2022-07-03'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
+
+    # url = 'https://code4biz.slack.com/'
