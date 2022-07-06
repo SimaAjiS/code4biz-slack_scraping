@@ -337,7 +337,7 @@ def main(start, end):
         display_smaller()
 
         # 一番下まで移動
-        pg.press('end', presses=1, interval=0.5)
+        pg.press('end', presses=3, interval=1)
         sleep(2)
 
         # 取得日時
@@ -384,7 +384,7 @@ def main(start, end):
 
             if page + 1 < pages:
                 # 一番下まで移動
-                pg.press('end', presses=2, interval=0.5) # 大抵は1回で下へ遷移するが、たまに動かないため2回
+                pg.press('end', presses=3, interval=1)  # 大抵は1回で下へ遷移するが、たまに動かないため3回
                 sleep(2)
                 try:
                     next_button = driver.find_element(by=By.XPATH, value='//*[@aria-label="次のページ"]')
@@ -423,9 +423,13 @@ def main(start, end):
 
 
 if __name__ == '__main__':
+    # 特定日指定
+    # start = '2022-03-24'
+    # start = '2022-04-02'
+    # start = '2022-06-19'
+    # end = start
+
     # 期間指定
-    start = '2022-03-29'
-    end = '2022-03-31'
     # start = '2022-06-29'
     # end = '2022-07-03'
 

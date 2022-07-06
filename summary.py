@@ -3,7 +3,7 @@ import glob
 import openpyxl
 import pandas as pd
 
-from main import excel_tabling
+from scraping import excel_tabling
 
 
 def main(month):
