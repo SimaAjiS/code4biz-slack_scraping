@@ -1,32 +1,9 @@
 # code4biz-slack_scraping
-- 2022/06/28
-  - code4biz Slackの内容をスクレイピングし保存する
-  - 10000件超過対策
-  - 方法（案）
-    - Slack APIなどでスクレイピング
-    - スクレイピング項目
-      - タイムスタンプ
-      - チャンネル(パブリックのみ「)
-      - 投稿者
-      - 内容
-      - Slackリンク
-    - 保存先
-      - Googleスプレッド
-      - Excel
-      - Notion
-  - KinoCode「Slackチャンネル名の全部を一瞬で取得する方法」
-    - (https://kino-code.com/python-slack-api/)
-  - Slack API説明
-    - (https://api.slack.com/web)
-    - (https://api.slack.com/methods?filter=conversations)
-    - フリープランの制限のためAPIは使えず...
-- 2022/06/30
-  - 検索から一人分のデータ取得
-  - ただし動的に変わるためどうすれば固定できる？？？
-- 2022/07/02
-  - スクロール動作により一旦重複有りでデータ取得
-  - 重複データはpandasで処理
-  - main.pyにまとめる
-- 2022/07/03
-  - スクロールループ処理適正化
-  一部全件取得できない不具合残留
+- code4biz Slackの内容をスクレイピングしエクセル保存するコード
+- 構成
+  - src　スクレイピングした日毎、月毎、期間毎のエクセルファイルを保存する
+    - 集計.xlsx　最終アウトプットファイル
+    - auth.json　code4biz Slack Webページへのログイン情報
+  - scraping.py　指定した期間でスクレイピング
+  - summary.py　日毎のエクセルファイルを一つにまとめる
+    

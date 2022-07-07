@@ -6,16 +6,15 @@ import pandas as pd
 from scraping import excel_tabling
 
 
-def main(month):
-    file_path = f'src/2022-{month:02}'
+def summary(month, file_path, files):
     print(file_path)
 
-    files = glob.glob(f'{file_path}/*_c4b_slack.xlsx')
-
     # ベース用データフレームの準備
-    df_base = pd.read_excel('src/template.xlsx', index_col=None, header=0)
+    df_base = pd.read_excel(files[0], index_col=None, header=0)
 
-    for file in files:
+    for file in files[1:]:
+        print(file)
+
         # 追加用データフレームの準備
         wb = openpyxl.load_workbook(file, data_only=True)
         ws = wb.active
@@ -50,10 +49,25 @@ def main(month):
 
 
 if __name__ == '__main__':
-    # 集計する月を数字入力（2022年3月～2022年12月）
-    month = 3
 
-    df_base, file_path = main(month)
+    # 2022年3月～2022年7月の集計
+    for month in range(3, 8):
+        file_path = f'src/2022-{month:02}'
+        files = glob.glob(f'{file_path}/*_c4b_slack.xlsx')
 
-    df_base.to_excel(f'{file_path}/月集計.xlsx', index=False)
-    excel_tabling(f'{file_path}/月集計.xlsx')
+        print(f'{month}月の集計を開始')
+        df_base, file_path = summary(month, file_path, files)
+
+        df_base.to_excel(f'{file_path}/月集計.xlsx', index=False)
+        excel_tabling(f'{file_path}/月集計.xlsx')
+
+    # 月ごとを更に1本化
+    file_path = f'src'
+    files = glob.glob(f'{file_path}/*/月集計.xlsx')
+
+    print(file_path)
+    df_base, file_path = summary(month, file_path, files)
+
+    df_base.to_excel(f'{file_path}/集計.xlsx', index=False)
+    excel_tabling(f'{file_path}/集計.xlsx')
+    print(f'{file_path}/集計.xlsx へ出力完了しました')
