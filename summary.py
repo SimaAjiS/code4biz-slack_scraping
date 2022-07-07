@@ -69,5 +69,15 @@ if __name__ == '__main__':
     df_base, file_path = summary(month, file_path, files)
 
     df_base.to_excel(f'{file_path}/集計.xlsx', index=False)
+
+    wb = openpyxl.load_workbook(f'{file_path}/集計.xlsx')
+    ws = wb.active
+    for i in range(2, ws.max_row):
+        print(ws[f'D{i}'].value)
+        month = int(ws[f'D{i}'].value.split('月')[0])
+        day = int(ws[f'D{i}'].value.split('月')[-1].split('日')[0])
+
+        ws[f'D{i}'].value = f'2022/{month:02}/{day:02}'
+    wb.save(f'{file_path}/集計.xlsx')
     excel_tabling(f'{file_path}/集計.xlsx')
     print(f'{file_path}/集計.xlsx へ出力完了しました')
