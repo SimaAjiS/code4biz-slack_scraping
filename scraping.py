@@ -87,13 +87,13 @@ def auto_login(driver):
     pg.press('tab', presses=2, interval=0.1)
     pg.press('enter', presses=1, interval=0.1)
 
-    # SlackのWebページが完全に立ち上がるまで5秒待機
+    # SlackのWebページが完全に立ち上がるまで8秒待機
     sleep(8)
 
 
 def jump_to_search_box():
     # 検索フィルターで期間指定
-    pg.press('tab', presses=12, interval=0.2)
+    pg.press('tab', presses=10, interval=0.2)
     pg.press('enter', presses=1, interval=0.1)
     sleep(1)
 
@@ -118,7 +118,7 @@ def to_search_date(search_day):
 
     # 検索開始（上記保存することでコメント欄にカーソルアクティブしている）
     sleep(0.2)
-    pg.press('tab', presses=15, interval=0.2)
+    pg.press('tab', presses=13, interval=0.2)
     pg.press('enter', presses=1, interval=0.1)
 
     print(f'検索日:{search_day}')
@@ -430,8 +430,8 @@ if __name__ == '__main__':
     # end = start
 
     # 期間指定
-    start = '2022-07-15'
-    end = '2022-07-15'
+    start = '2022-07-16'
+    end = '2022-07-16'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
