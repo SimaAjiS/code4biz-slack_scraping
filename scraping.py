@@ -430,8 +430,8 @@ if __name__ == '__main__':
     # end = start
 
     # 期間指定
-    start = '2022-07-19'
-    end = '2022-07-19'
+    start = '2022-07-20'
+    end = '2022-07-20'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
