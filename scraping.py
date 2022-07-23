@@ -364,7 +364,8 @@ def main(start, end):
                         data.append(datum)
                         print(
                             f'\n{search_day} {page + 1}/{pages}ページ目{i + 1}/{len(message_groups)}件 (全{search_results_count}件):{sender_name} {timestamp}')
-                        print(f'{text_section[:50]}...\nメッセージ取得完了')
+                        # print(f'{text_section[:50]}...\nメッセージ取得完了')
+                        print(f'{text_section}\nメッセージ取得完了')
                     except Exception as e:
                         # エラーによる取得NGの時スキップ処理
                         print(
@@ -430,8 +431,8 @@ if __name__ == '__main__':
     # end = start
 
     # 期間指定
-    start = '2022-07-22'
-    end = '2022-07-22'
+    start = '2022-07-23'
+    end = '2022-07-23'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')
