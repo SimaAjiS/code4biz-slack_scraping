@@ -73,7 +73,7 @@ def create_network(df_net, output_file):
     G.add_weighted_edges_from(edges)
 
     # ブラウザ上でインタラクティブに動くネットワーク図を作る
-    net = Network('900px', '1400')
+    net = Network('750px', '1200')
     net.from_nx(G)
     net.toggle_physics(True)
 
@@ -122,7 +122,7 @@ def create_network(df_net, output_file):
         "smooth": false
       },
       "interaction": {
-        "hover": true,
+        "hover": false,
         "multiselect": true,
         "navigationButtons": true
       },

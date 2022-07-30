@@ -77,10 +77,11 @@ def auto_login(driver):
     sleep(0.5)
     btn = form.find_element(by=By.CSS_SELECTOR, value='#signin_btn')
     btn.click()
-    sleep(2)
+    sleep(7)
 
     # Slackアプリ起動確認メッセージのキャンセル
-    pg.press('enter', presses=1, interval=0.1)
+    # pg.press('enter', presses=1, interval=0.1) # for win
+    pg.press('esc', presses=1, interval=0.1) # foe mac
     sleep(1)
 
     # ブラウザでSlack起動
@@ -88,12 +89,12 @@ def auto_login(driver):
     pg.press('enter', presses=1, interval=0.1)
 
     # SlackのWebページが完全に立ち上がるまで8秒待機
-    sleep(8)
+    sleep(7)
 
 
 def jump_to_search_box():
     # 検索フィルターで期間指定
-    pg.press('tab', presses=10, interval=0.2)
+    pg.press('tab', presses=9, interval=0.2)
     pg.press('enter', presses=1, interval=0.1)
     sleep(1)
 
@@ -118,7 +119,7 @@ def to_search_date(search_day):
 
     # 検索開始（上記保存することでコメント欄にカーソルアクティブしている）
     sleep(0.2)
-    pg.press('tab', presses=13, interval=0.2)
+    pg.press('tab', presses=15, interval=0.2)
     pg.press('enter', presses=1, interval=0.1)
 
     print(f'検索日:{search_day}')
@@ -128,19 +129,19 @@ def to_search_date(search_day):
 def write_jp(text):
     sleep(0.5)
     pyperclip.copy(text)
-    pg.hotkey('ctrl', 'v')
+    pg.hotkey('command', 'v')
 
 
 def display_smaller():
     # 検索結果表示画面の表示を小さくする（一度の表示できる件数を増やす）
     sleep(1)
-    pg.hotkey('ctrl', '-')
-    pg.hotkey('ctrl', '-')
-    pg.hotkey('ctrl', '-')
-    pg.hotkey('ctrl', '-')
-    pg.hotkey('ctrl', '-')
-    pg.hotkey('ctrl', '-')
-    pg.hotkey('ctrl', '-')
+    pg.hotkey('command', '-')
+    pg.hotkey('command', '-')
+    pg.hotkey('command', '-')
+    pg.hotkey('command', '-')
+    pg.hotkey('command', '-')
+    pg.hotkey('command', '-')
+    pg.hotkey('command', '-')
     sleep(2)
 
 
@@ -337,7 +338,8 @@ def main(start, end):
         display_smaller()
 
         # 一番下まで移動
-        pg.press('end', presses=3, interval=1)
+        # pg.press('end', presses=3, interval=1) # for win
+        pg.hotkey('fn', 'right') # for mac
         sleep(2)
 
         # 取得日時
@@ -431,8 +433,8 @@ if __name__ == '__main__':
     # end = start
 
     # 期間指定
-    start = '2022-07-27'
-    end = '2022-07-27'
+    start = '2022-07-30'
+    end = '2022-07-30'
 
     main(start=start, end=end)
     print(f'{start}～{end}の全件取得完了')

@@ -49,10 +49,11 @@ def auto_login(driver):
     sleep(0.5)
     btn = form.find_element(by=By.CSS_SELECTOR, value='#signin_btn')
     btn.click()
-    sleep(2)
+    sleep(7)
 
     # Slackアプリ起動確認メッセージのキャンセル
-    pg.press('enter', presses=1, interval=0.1)
+    # pg.press('enter', presses=1, interval=0.1) # for win
+    pg.press('esc', presses=1, interval=0.1)  # foe mac
     sleep(1)
 
     # ブラウザでSlack起動
@@ -106,7 +107,7 @@ def main(save_file_name):
     auto_login(driver)
 
     # メンバーディレクトリを表示
-    pg.hotkey('ctrl', 'shift', 'e')
+    pg.hotkey('command', 'shift', 'e')
     sleep(5)
 
     # 全員表示
@@ -159,7 +160,8 @@ def main(save_file_name):
 
         if page + 1 < pages:
             # 一番下まで移動
-            pg.press('end', presses=3, interval=1)  # 大抵は1回で下へ遷移するが、たまに動かないため3回
+            # pg.press('end', presses=3, interval=1)  # for win 大抵は1回で下へ遷移するが、たまに動かないため3回
+            pg.hotkey('fn', 'right')  # for mac
             sleep(2)
             try:
                 next_button = driver.find_element(by=By.XPATH, value='//*[@aria-label="次のページ"]')
